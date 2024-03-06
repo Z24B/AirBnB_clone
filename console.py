@@ -4,7 +4,8 @@
 import cmd
 from models.base_model import BaseModel
 import shlex
-
+from models.user import User
+import models
 
 class HBNBCommand(cmd.Cmd):
     """Command interpreter for HBNB project"""
