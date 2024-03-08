@@ -4,6 +4,7 @@ import models
 import uuid
 from datetime import datetime
 
+
 class BaseModel:
     """The base class for other classes"""
     def __init__(self, *args, **kwargs):
@@ -37,3 +38,15 @@ class BaseModel:
         obj_dict['created_at'] = self.created_at.isoformat()
         obj_dict['updated_at'] = self.updated_at.isoformat()
         return obj_dict
+
+    @classmethod
+    def all(cls):
+        """Returns a dictionary of all instances of the class."""
+        from models import storage
+        return {k: v for k, v in storage.all().items() if isinstance(v, cls)}
+
+    @classmethod
+    def count(cls):
+        """Returns the number of instances of the class."""
+        from models import storage
+        return len([obj for obj in storage.all().values() if isinstance(obj, cls)])
