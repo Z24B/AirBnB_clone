@@ -52,15 +52,3 @@ class BaseModel:
         temp['created_at'] = self.created_at.strftime('%Y-%m-%dT%H:%M:%S.%f')
         temp['updated_at'] = self.updated_at.strftime('%Y-%m-%dT%H:%M:%S.%f')
         return temp
-
-    @classmethod
-    def all(cls):
-        """Returns a dictionary of all instances of the class."""
-        from models import storage
-        return {k: v for k, v in storage.all().items() if isinstance(v, cls)}
-
-    @classmethod
-    def count(cls):
-        """Returns the number of instances of the class."""
-        from models import storage
-        return len([    obj for obj in storage.all().values() if isinstance(obj, cls)])
