@@ -95,6 +95,7 @@ class HBNBCommand(cmd.Cmd):
         """Prints all string representation of all instances"""
         from models import storage
         args = shlex.split(arg)
+        all_objects = storage.all()
         if not args:
             print([str(value) for value in storage.all().values()])
             return
@@ -103,8 +104,7 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
             return
         print([
-            str(value)
-            for key, value in storage.all().items()
+            str(value) for key, value in storage.all().items()
             if key.startswith(class_name)])
 
     def do_update(self, arg):
@@ -115,7 +115,7 @@ class HBNBCommand(cmd.Cmd):
             print("** class name missing **")
             return
         class_name = args[0]
-        if class_name not in models.__all__:
+        if class_name not in dir(models):
             print("** class doesn't exist **")
             return
         cls = getattr(models, class_name)
@@ -182,8 +182,8 @@ class HBNBCommand(cmd.Cmd):
             del all_objects[key]
             models.storage.save()
         elif command.startswith("update(") and command.endswith(")"):
-            args =
-            command[command.index("(") + 1:command.index(")")].split(",")
+            args = command[command.index(
+                "(") + 1:command.index(")")].split(",")
             if len(args) < 3:
                 print("** attribute name or value missing **")
                 return
