@@ -24,7 +24,8 @@ class BaseModel:
 
     def __str__(self):
         """Return string representation"""
-        return "[{}] ({}) {}".format(self.__class__.__name__, self.id, self.__dict__)
+        return "[{}] ({}) {}".format(
+                self.__class__.__name__, self.id, self.__dict__)
 
     def save(self):
         """Update updated_at attribute"""
@@ -49,4 +50,5 @@ class BaseModel:
     def count(cls):
         """Returns the number of instances of the class."""
         from models import storage
-        return len([obj for obj in storage.all().values() if isinstance(obj, cls)])
+        return len([
+            obj for obj in storage.all().values() if isinstance(obj, cls)])
