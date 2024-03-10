@@ -28,6 +28,10 @@ class BaseModel:
                         '%Y-%m-%dT%H:%M:%S.%f')
             else:
                 self.updated_at = datetime.utcnow()
+            for key, value in kwargs.items():
+                if key == '__class__':
+                    continue
+                setattr(self, key, value)
         else:
             self.id = str(uuid4())
             self.created_at = datetime.utcnow()
