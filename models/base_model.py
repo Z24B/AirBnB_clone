@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 """Defines class BaseModel"""
+
 import models
 from uuid import uuid4
 from datetime import datetime
@@ -7,6 +8,7 @@ from datetime import datetime
 
 class BaseModel:
     """The base class for other classes"""
+
     def __init__(self, *args, **kwargs):
         """Initaliaze attributes"""
         timeform = "%Y-%m-%dT%H:%M:%S.%f"
@@ -52,3 +54,54 @@ class BaseModel:
         temp['created_at'] = self.created_at.strftime('%Y-%m-%dT%H:%M:%S.%f')
         temp['updated_at'] = self.updated_at.strftime('%Y-%m-%dT%H:%M:%S.%f')
         return temp
+
+    @classmethod
+    def all(cls):
+        """Retrieve all current instances of cls"""
+        return models.storage.find_all(cls.__name__)
+
+    @classmethod
+    def count(cls):
+        """Get the number of all current instances of cls"""
+        return len(models.storage.find_all(cls.__name__))
+
+    @classmethod
+    def create(cls, *args, **kwargs):
+        """Creates an Instance"""
+        new = cls(*args, **kwargs)
+        return new.id
+
+    @classmethod
+    def show(cls, instance_id):
+        """Retrieve an instance"""
+        return models.storage.find_by_id(
+                cls.__name__,
+                instance_id
+                )
+
+    @classmethod
+    def destroy(cls, instance_id):
+        """Deletes an instance"""
+        return models.storage.delete_by_id(
+                cls.__name__,
+                instance_id
+                )
+
+    @classmethod
+    def update(cls, instance_id, *args):
+        """Updates an instance"""
+        if not len(args):
+            print("** attribute name missing **")
+            return
+        if len(args) == 1 and isinstance(args[0], dict):
+            args = args[0].items()
+        else:
+            args = [args[:2]]
+        for arg in args:
+            models.storage.update_one(
+                    cls.__name__,
+                    instance_id,
+                    *arg
+                    )
+
+
