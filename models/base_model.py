@@ -15,11 +15,18 @@ class BaseModel:
                 if key == 'created_at' or key == 'updated_at':
                     value = datetime.strptime(value, timeform)
                 setattr(self, key, value)
-            else:
-                self.id = str(uuid4())
-                self.created_at = datetime.today()
-                self.updated_at = datetime.today()
-                models.storage.new(self)
+            if 'id' not in kwargs:
+                setattr(self, 'id', str(uuid4()))
+            if 'created_at' not in kwargs:
+                setattr(self, 'created_at', datetime.today())
+            if 'updated_at' not in kwargs:
+                setattr(self, 'updated_at', datetime.today())
+
+        else:
+            self.id = str(uuid4())
+            self.created_at = datetime.today()
+            self.updated_at = datetime.today()
+            models.storage.new(self)
 
     def save(self):
         """Update updated_at with the current datetime."""
