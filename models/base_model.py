@@ -11,40 +11,47 @@ class BaseModel:
         """Initaliaze attributes"""
         timeform = "%Y-%m-%dT%H:%M:%S.%f"
         if kwargs:
-            for key, value in kwargs.items():
-                if key == 'created_at' or key == 'updated_at':
-                    value = datetime.strptime(value, timeform)
-                setattr(self, key, value)
             if 'id' not in kwargs:
-                setattr(self, 'id', str(uuid4()))
-            if 'created_at' not in kwargs:
-                setattr(self, 'created_at', datetime.today())
-            if 'updated_at' not in kwargs:
-                setattr(self, 'updated_at', datetime.today())
-
+                kwargs['id'] = str(uuid4())
+            self.id = kwargs['id']
+            if "created_at" in kwargs:
+                self.created_at = datetime.strptime(
+                        kwargs['created_at'],
+                        '%Y-%m-%dT%H:%M:%S.%f')
+            else:
+                self.created_at = datetime.utcnow()
+            if "updated_at" in kwargs:
+                self.updated_at = datetime.strptime(
+                        kwargs['updated_at'],
+                        '%Y-%m-%dT%H:%M:%S.%f')
+            else:
+                self.updated_at = datetime.utcnow()
         else:
             self.id = str(uuid4())
-            self.created_at = datetime.today()
-            self.updated_at = datetime.today()
+            self.created_at = datetime.utcnow()
+            self.updated_at = datetime.utcnow()
             models.storage.new(self)
 
+    def __str__(self):
+        """Override string representation of self"""
+        fmt = "[{}] ({}) {}"
+        return fmt.format(
+                type(self).__name__,
+                self.id,
+                self.__dict__)
+
     def save(self):
-        """Update updated_at with the current datetime."""
-        self.updated_at = datetime.today()
+        """Updates last updated variable"""
+        self.updated_at = datetime.utcnow()
         models.storage.save()
 
     def to_dict(self):
-        """Return the dictionary of the BaseModel instance."""
-        obj_dict = self.__dict__.copy()
-        obj_dict['created_at'] = self.created_at.isoformat()
-        obj_dict['updated_at'] = self.updated_at.isoformat()
-        obj_dict['__class__'] = self.__class__.__name__
-        return obj_dict
-
-    def __str__(self):
-        """Return the print/str representation of the BaseModel instance."""
-        return "[{}] ({}) {}".format(
-                self.__class__.__name__, self.id, self.__dict__)
+        """Returns a dictionary representation of self"""
+        temp = {**self.__dict__}
+        temp['__class__'] = type(self).__name__
+        temp['created_at'] = self.created_at.strftime('%Y-%m-%dT%H:%M:%S.%f')
+        temp['updated_at'] = self.updated_at.strftime('%Y-%m-%dT%H:%M:%S.%f')
+        return temp
 
     @classmethod
     def all(cls):
@@ -56,5 +63,4 @@ class BaseModel:
     def count(cls):
         """Returns the number of instances of the class."""
         from models import storage
-        return len([
-            obj for obj in storage.all().values() if isinstance(obj, cls)])
+        return len([    obj for obj in storage.all().values() if isinstance(obj, cls)])
