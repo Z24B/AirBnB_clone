@@ -3,7 +3,7 @@
 
 import models
 import json
-from uuid import uuid4
+import uuid
 from datetime import datetime
 
 
@@ -13,7 +13,7 @@ class BaseModel:
     def __init__(self, *args, **kwargs):
         """Initalize attributes"""
         timeform = "%Y-%m-%dT%H:%M:%S.%f"
-        self.id = str(uuid4())
+        self.id = str(uuid.uuid4())
         self.created_at = datetime.today()
         self.updated_at = datetime.today()
         if len(kwargs) != 0:
