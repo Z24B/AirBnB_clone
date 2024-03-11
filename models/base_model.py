@@ -13,9 +13,10 @@ class BaseModel:
         """Initaliaze attributes"""
         if kwargs:
             for key, value in kwargs.items():
+                if key == '__class__':
+                    continue
                 if key == 'created_at' or key == 'updated_at':
-                    setattr(self, key, datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f"))
-                elif key != '__class__':
+                    value = datetime.strptime(value, '%Y-%m-%dT%H:%M:%S.%f')
                 setattr(self, key, value)
         else:
             self.id = str(uuid.uuid4())
@@ -25,7 +26,7 @@ class BaseModel:
             storage.new(self)
 
     def __str__(self):
-        """Override string representation of self"""
+        """Return string representation"""
         return "[{}] ({}) {}".format(
                 self.__class__.__name__, self.id, self.__dict__)
 
@@ -42,3 +43,7 @@ class BaseModel:
         new_dict["updated_at"] = self.updated_at.isoformat()
         new_dict["__class__"] = self.__class__.__name__
         return new_dict
+
+    def to_json(self):
+        """Return JSON string representation"""
+        return json.dumps(self.to_dict())
