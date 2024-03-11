@@ -12,7 +12,24 @@ from models.amenity import Amenity
 from models.place import Place
 from models.review import Review
 import shlex
-import inspect
+
+
+def parse(arg):
+    formatting = re.search(r"\{(.*?)\}", arg)
+    structure = re.search(r"\[(.*?)\]", arg)
+    if formatting is None:
+        if structure is None:
+            return [i.strip(",") for i in split(arg)]
+        else:
+            x = split(arg[:structure.span()[0]])
+            y = [i.strip(",") for i in x]
+            y.append(structure.group())
+            return y
+    else:
+        x = split(arg[:formatting.span()[0]])
+        y = [i.strip(",") for i in x]
+        y.append(formatting.group())
+        return y
 
 
 class HBNBCommand(cmd.Cmd):
@@ -70,7 +87,7 @@ class HBNBCommand(cmd.Cmd):
             return
         obj_id = args[1]
         key = "{}.{}".format(class_name, obj_id)
-        all_objects = models.storage.all()
+        all_objects = storage.all()
         if key not in all_objects:
             print("** no instance found **")
             return
@@ -91,12 +108,12 @@ class HBNBCommand(cmd.Cmd):
             return
         obj_id = args[1]
         key = "{}.{}".format(class_name, obj_id)
-        all_objects = models.storage.all()
+        all_objects = storage.all()
         if key not in all_objects:
             print("** no instance found **")
             return
         del all_objects[key]
-        models.storage.save()
+        storage.save()
 
     def do_all(self, arg):
         """Prints all string representation of all instances"""
@@ -104,14 +121,54 @@ class HBNBCommand(cmd.Cmd):
         if args and args[0] not in globals():
             print("** class doesn't exist **")
             return
-        all_objects = models.storage.all()
+        all_objects = storage.all()
         if args:
             class_name = args[0]
             print([
-                str(value) for key, value in all_objects.items()
+                str(value) for key, value in storage.all().items()
                 if key.startswith(class_name)])
         else:
             print([str(value) for value in all_objects.values()])
+
+    # Additional methods for the new classes
+    def do_update(self, arg):
+        """Updates an instance based on the class name and id"""
+        args = shlex.split(arg)
+        if not args:
+            print("** class name missing **")
+            return
+        class_name = args[0]
+        if class_name not in [
+                "BaseModel", "User", "State",
+                "City", "Amenity", "Place", "Review"]:
+            print("** class doesn't exist **")
+            return
+        if len(args) < 2:
+            print("** instance id missing **")
+            return
+        obj_id = args[1]
+        key = "{}.{}".format(class_name, obj_id)
+        all_objects = storage.all()
+        if key not in all_objects:
+            print("** no instance found **")
+            return
+        obj = all_objects[key]
+        if len(args) < 3:
+            print("** attribute name missing **")
+            return
+        attribute_name = args[2]
+        if len(args) < 4:
+            print("** value missing **")
+            return
+        value = args[3]
+        try:
+            # Cast the value to the type of the attribute
+            value = type(getattr(obj, attribute_name))(value)
+        except AttributeError:
+            print("** attribute doesn't exist **")
+            return
+        setattr(obj, attribute_name, value)
+        obj.save()
 
     def default(self, arg):
         """Handles dynamic command <class name>.all()|<class name>.count()"""
