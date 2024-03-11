@@ -25,11 +25,6 @@ class BaseModel:
         else:
             models.storage.new(self)
 
-    def __str__(self):
-        """Return string representation"""
-        return "[{}] ({}) {}".format(
-                self.__class__.__name__, self.id, self.__dict__)
-
     def save(self):
         """Updates last updated variable"""
         self.updated_at = datetime.today()
@@ -42,6 +37,11 @@ class BaseModel:
         new_dict["updated_at"] = self.updated_at.isoformat()
         new_dict["__class__"] = self.__class__.__name__
         return new_dict
+
+    def __str__(self):
+        """Return string representation"""
+        return "[{}] ({}) {}".format(
+                self.__class__.__name__, self.id, self.__dict__)
 
     def to_json(self):
         """Return JSON string representation"""
